@@ -1,6 +1,7 @@
+from fastapi.testclient import TestClient
+
 from codestra_agentmail.config import get_settings
 from codestra_agentmail.main import app
-from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
