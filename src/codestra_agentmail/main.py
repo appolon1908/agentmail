@@ -134,4 +134,9 @@ async def agentmail_webhook(request: Request, settings: SettingsDep) -> dict[str
     payload = await verify_agentmail_webhook(request, settings)
     event = canonicalize_agentmail_event(payload)
     forwarded = await forward_to_klyrow(settings, event)
-    return {"accepted": True, "event_id": event.event_id, "event_type": event.event_type, "forwarded_to_klyrow": forwarded}
+    return {
+        "accepted": True,
+        "event_id": event.event_id,
+        "event_type": event.event_type,
+        "forwarded_to_klyrow": forwarded,
+    }
