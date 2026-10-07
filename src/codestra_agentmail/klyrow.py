@@ -9,9 +9,15 @@ from .config import Settings
 from .models import CanonicalEmailEvent
 
 
+def _mapping(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return {str(key): item for key, item in value.items()}
+    return {}
+
+
 def canonicalize_agentmail_event(payload: dict[str, Any]) -> CanonicalEmailEvent:
-    message = payload.get("message") if isinstance(payload.get("message"), dict) else {}
-    thread = payload.get("thread") if isinstance(payload.get("thread"), dict) else {}
+    message = _mapping(payload.get("message"))
+    thread = _mapping(payload.get("thread"))
 
     return CanonicalEmailEvent(
         event_type=str(payload.get("eventType") or payload.get("event_type") or payload.get("type") or "unknown"),
