@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codestra.co/schemas/klyrow-email-event.v1.json",
+  "title": "Codestra Canonical Email Event",
+  "type": "object",
+  "required": ["schema_version", "provider", "event_type", "payload"],
+  "properties": {
+    "schema_version": {"const": "codestra.email-event.v1"},
+    "provider": {"const": "agentmail"},
+    "event_type": {"type": "string", "minLength": 1},
+    "event_id": {"type": ["string", "null"]},
+    "inbox_id": {"type": ["string", "null"]},
+    "message_id": {"type": ["string", "null"]},
+    "thread_id": {"type": ["string", "null"]},
+    "occurred_at": {"type": ["string", "null"]},
+    "payload": {"type": "object"}
+  },
+  "additionalProperties": false
+}
