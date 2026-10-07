@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from email.utils import parseaddr
 
 from .config import Settings
 
@@ -13,13 +14,18 @@ class DeliveryDecision:
     reason: str
 
 
+def _normalize_address(address: str) -> str:
+    parsed = parseaddr(address.strip())[1]
+    return (parsed or address.strip()).lower()
+
+
 def _matches_allowlist(address: str, allowlist: tuple[str, ...]) -> bool:
-    address = address.strip().lower()
-    domain = address.rsplit("@", 1)[-1] if "@" in address else ""
+    normalized = _normalize_address(address)
+    domain = normalized.rsplit("@", 1)[-1] if "@" in normalized else ""
     for rule in allowlist:
         if rule.startswith("@") and domain == rule[1:]:
             return True
-        if address == rule:
+        if normalized == rule:
             return True
     return False
 

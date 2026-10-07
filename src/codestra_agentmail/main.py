@@ -118,11 +118,19 @@ def send_message(inbox_id: str, request: SendMessageRequest, settings: SettingsD
 
 @app.post("/v1/inboxes/{inbox_id}/messages/{message_id}:reply")
 def reply_message(inbox_id: str, message_id: str, request: ReplyMessageRequest, settings: SettingsDep) -> Any:
-    if not settings.live_send_enabled or not settings.production_approved:
-        raise HTTPException(status_code=403, detail={"code": "effect_denied", "reason": "delivery_gate_closed"})
+    if request.reply_all:
+        raise HTTPException(status_code=403, detail={"code": "effect_denied", "reason": "reply_all_not_enabled"})
 
+    mail_provider = provider(settings)
     try:
-        return provider(settings).reply_message(inbox_id, message_id, request)
+        source = mail_provider.get_message(inbox_id, message_id)
+        reply_to = source.get("reply_to") if isinstance(source, dict) else None
+        sender = source.get("from") if isinstance(source, dict) else None
+        target = reply_to[0] if isinstance(reply_to, list) and reply_to else sender
+        enforce_delivery(settings, [target] if isinstance(target, str) else [])
+        return mail_provider.reply_message(inbox_id, message_id, request)
+    except EffectDenied as exc:
+        raise HTTPException(status_code=403, detail={"code": "effect_denied", "reason": str(exc)}) from exc
     except HTTPException:
         raise
     except Exception as exc:
